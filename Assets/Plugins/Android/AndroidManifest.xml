@@ -4,7 +4,7 @@
     package="com.unagirabbit.photopicker"
     xmlns:tools="http://schemas.android.com/tools">
     <application>
-        <activity android:name="com.unagirabbit.photopicker.UnityPlayerActivity"
+        <activity android:name="com.unagirabbit.photopicker.CustomUnityPlayerActivity"
                   android:theme="@style/UnityThemeSelector">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -13,4 +13,5 @@
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
         </activity>
     </application>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="29" />
 </manifest>
