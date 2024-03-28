@@ -12,28 +12,20 @@ public class SampleScene : MonoBehaviour
     [SerializeField]
     private Button runCameraBtn;
     [SerializeField]
+    private Button chooseBtn;
+    [SerializeField]
     private RawImage rawImage;
     private WebCamTexture webCamTexture;
 #if UNITY_ANDROID
-    private static readonly string CAMERA_PERMISSION = "android.permission.CAMERA";
-    private static readonly string WRITE_STORAGE_PERMISSION = "android.permission.WRITE_EXTERNAL_STORAGE";
     private static readonly int ANDROID_API_LEVEL_Q = 29;
 #endif
 
     void Start()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        if (!Permission.HasUserAuthorizedPermission(CAMERA_PERMISSION))
+        if (!Permission.HasUserAuthorizedPermission())
         {
-            Permission.RequestUserPermission(CAMERA_PERMISSION);
-        }
-        var apiLevel = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT");
-        if (apiLevel <= ANDROID_API_LEVEL_Q)
-        {
-            if (!Permission.HasUserAuthorizedPermission(WRITE_STORAGE_PERMISSION))
-            {
-                Permission.RequestUserPermission(WRITE_STORAGE_PERMISSION);
-            }
+            Permission.RequestUserPermission(Permission.Camera);
         }
 #endif
         runCameraBtn.GetComponent<Button>().onClick.AddListener(() =>
@@ -43,6 +35,10 @@ public class SampleScene : MonoBehaviour
         saveImageBtn.GetComponent<Button>().onClick.AddListener(() =>
         {
             SaveWebCamTextureToFile($"{DateTime.Now:yyyyMMddHHmmss}.jpg");
+        });
+        chooseBtn.GetComponent<Button>().onClick.AddListener(() =>
+        {
+            OpenChooser();
         });
     }
 
@@ -71,6 +67,19 @@ public class SampleScene : MonoBehaviour
             Debug.LogError("webcam not available.");
             return;
         }
+#if UNITY_ANDROID && !UNITY_EDITOR
+        var apiLevel = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT");
+        if (apiLevel <= ANDROID_API_LEVEL_Q)
+        {
+            if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead))
+            {
+                var callbacks = new PermissionCallbacks();
+                callbacks.PermissionGranted += _ => SaveTextureToFile($"{DateTime.Now:yyyyMMddHHmmss}.jpg");
+                Permission.RequestUserPermission(Permission.ExternalStorageRead, callbacks);
+                return;
+            }
+        }
+#endif
         var texture = new Texture2D(webCamTexture.width, webCamTexture.height);
         try
         {
@@ -82,16 +91,24 @@ public class SampleScene : MonoBehaviour
             return;
         }
         texture.Apply();
-        byte[] jpgData = texture.EncodeToJPG();
-        SaveImageToGallery(jpgData, fileName);
+        SaveImageToGallery(texture.EncodeToJPG(), fileName);
     }
 
-    public void SaveImageToGallery(byte[] imageBytes, string fileName)
+    private void SaveImageToGallery(byte[] imageBytes, string fileName)
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
-        using var myClass = new AndroidJavaObject("com.unagirabbit.photopicker.CustomUnityPlayerActivity");
-        var ret = myClass?.CallStatic<bool>("saveImageToMediaStore", Convert.ToBase64String(imageBytes), fileName);
-        Debug.Log($"SaveImageToGallery ret = {ret}");
+        using var unityPlayer = new AndroidJavaClass( "com.unity3d.player.UnityPlayer" );
+        using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>( "currentActivity" );
+        currentActivity.CallStatic<bool>("saveImageToMediaStore", Convert.ToBase64String(imageBytes), fileName);
+#endif
+    }
+
+    private void OpenChooser()
+    {
+#if UNITY_ANDROID && !UNITY_EDITOR
+        using var unityPlayer = new AndroidJavaClass( "com.unity3d.player.UnityPlayer" );
+        using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>( "currentActivity" );
+        currentActivity.CallStatic("openChooser");
 #endif
     }
 }
