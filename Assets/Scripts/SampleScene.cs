@@ -1,106 +1,34 @@
+using System;
+using System.IO;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
-#if UNITY_ANDROID
-using UnityEngine.Android;
-#endif
 
 public class SampleScene : MonoBehaviour
 {
     [SerializeField]
-    private Button saveImageBtn;
-    [SerializeField]
-    private Button runCameraBtn;
-    [SerializeField]
     private Button chooseBtn;
     [SerializeField]
     private RawImage rawImage;
-    private WebCamTexture webCamTexture;
-#if UNITY_ANDROID
-    private static readonly int ANDROID_API_LEVEL_Q = 29;
-#endif
 
-    void Start()
+    private void Start()
     {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        if (!Permission.HasUserAuthorizedPermission())
-        {
-            Permission.RequestUserPermission(Permission.Camera);
-        }
-#endif
-        runCameraBtn.GetComponent<Button>().onClick.AddListener(() =>
-        {
-            ToggleCamera();
-        });
-        saveImageBtn.GetComponent<Button>().onClick.AddListener(() =>
-        {
-            SaveWebCamTextureToFile($"{DateTime.Now:yyyyMMddHHmmss}.jpg");
-        });
         chooseBtn.GetComponent<Button>().onClick.AddListener(() =>
         {
             OpenChooser();
         });
     }
 
-    private void ToggleCamera()
+    private string GetAppFilesDirectory()
     {
-        if (null == webCamTexture)
-        {
-            var rect = rawImage.GetComponent<RectTransform>().rect;
-            webCamTexture = new WebCamTexture((int)rect.width, (int)rect.height);
-            rawImage.texture = webCamTexture;
-        }
-        if (webCamTexture.isPlaying)
-        {
-            webCamTexture.Stop();
-        }
-        else
-        {
-            webCamTexture.Play();
-        }
-    }
-
-    private void SaveWebCamTextureToFile(string fileName)
-    {
-        if (null == webCamTexture || (webCamTexture.width <= 16 && webCamTexture.height <= 16))
-        {
-            Debug.LogError("webcam not available.");
-            return;
-        }
+        var ret = string.Empty;
 #if UNITY_ANDROID && !UNITY_EDITOR
-        var apiLevel = new AndroidJavaClass("android.os.Build$VERSION").GetStatic<int>("SDK_INT");
-        if (apiLevel <= ANDROID_API_LEVEL_Q)
-        {
-            if (!Permission.HasUserAuthorizedPermission(Permission.ExternalStorageRead))
-            {
-                var callbacks = new PermissionCallbacks();
-                callbacks.PermissionGranted += _ => SaveTextureToFile($"{DateTime.Now:yyyyMMddHHmmss}.jpg");
-                Permission.RequestUserPermission(Permission.ExternalStorageRead, callbacks);
-                return;
-            }
-        }
+        using var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
+        using var context = currentActivity.Call<AndroidJavaObject>("getApplicationContext");
+        using var filesDir = context.Call<AndroidJavaObject>("getCacheDir");
+        ret = filesDir.Call<string>("getAbsolutePath");
 #endif
-        var texture = new Texture2D(webCamTexture.width, webCamTexture.height);
-        try
-        {
-            texture.SetPixels(webCamTexture.GetPixels());
-        }
-        catch (ArgumentException e)
-        {
-            Debug.LogError(e);
-            return;
-        }
-        texture.Apply();
-        SaveImageToGallery(texture.EncodeToJPG(), fileName);
-    }
-
-    private void SaveImageToGallery(byte[] imageBytes, string fileName)
-    {
-#if UNITY_ANDROID && !UNITY_EDITOR
-        using var unityPlayer = new AndroidJavaClass( "com.unity3d.player.UnityPlayer" );
-        using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>( "currentActivity" );
-        currentActivity.CallStatic<bool>("saveImageToMediaStore", Convert.ToBase64String(imageBytes), fileName);
-#endif
+        return ret;
     }
 
     private void OpenChooser()
@@ -110,5 +38,24 @@ public class SampleScene : MonoBehaviour
         using var currentActivity = unityPlayer.GetStatic<AndroidJavaObject>( "currentActivity" );
         currentActivity.CallStatic("openChooser");
 #endif
+    }
+
+    private void OnActivityResult()
+    {
+        var filePath = $"{GetAppFilesDirectory()}/temp_000";
+        try
+        {
+            var fileBytes = File.ReadAllBytes(filePath);
+            if (null != fileBytes)
+            {
+                var texture = new Texture2D(1, 1);
+                texture.LoadImage(fileBytes);
+                rawImage.texture = texture;
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.LogError(e.Message);
+        }
     }
 }
