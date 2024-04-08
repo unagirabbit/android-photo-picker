@@ -1,7 +1,11 @@
 # PhotoPicker写真選択ツールの呼び出し
 
-Android13以降は画像選択に写真選択ツールの使用が推奨されているので使ってみる。
-選択された写真はアプリ固有のキャッシュ領域へコピーする。
+[Google Play の写真と動画の権限に関するポリシーの詳細](https://support.google.com/googleplay/android-developer/answer/14115180?hl=ja)  
+
+2025年初頭から`READ_MEDIA_IMAGES`/`READ_MEDIA_VIDEO`権限はメディアを管理するようなアプリでしか使えなくなります。  
+また、Android13以降でアプリ外に保存されているメディアを選択するのに、写真選択ツール（PhotoPicker）の使用が推奨されます。  
+
+<https://qiita.com/y-mimura/items/b5b9b6f19ae283108a28>
 
 ```java
 
