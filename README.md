@@ -3,12 +3,11 @@
 [Google Play の写真と動画の権限に関するポリシーの詳細](https://support.google.com/googleplay/android-developer/answer/14115180?hl=ja)  
 
 2025年初頭から`READ_MEDIA_IMAGES`、`READ_MEDIA_VIDEO`権限はメディアを管理するようなアプリでしか使えなくなります。  
-端末のフォトから画像を選択したり、アプリで表示するだけなら権限は必要ありません。  
-また、Android13以降でアプリ固有領域外に保存されているメディアを選択するのに、写真選択ツール（PhotoPicker）の使用が推奨されます。  
+また、Android13以降アプリ固有領域外に保存されているメディアを選択するのには、写真選択ツール（PhotoPicker）の使用が推奨されます。  
 
-[写真選択ツール](https://developer.android.com/training/data-storage/shared/photopicker?hl=ja)
-C#コードだけでAndroidのクラスを呼び出すことも可能ですが、今回はUnityPlayerActivityを継承したクラスで実装します。
-`PhotoPicker`は`Jetpack Activity`の`PickVisualMedia`、`PickMultipleVisualMedia`を使用すべきですが、`registerForActivityResult`は`Activity`で使用できないので`MediaStore.ACTION_PICK_IMAGES`を使います。
+[写真選択ツール](https://developer.android.com/training/data-storage/shared/photopicker?hl=ja)  
+C#コードだけでAndroidのクラスを呼び出すことも可能ですが、今回は`UnityPlayerActivity`を継承したクラスで実装します。  
+`PhotoPicker`は`Jetpack Activity`の`PickVisualMedia`、`PickMultipleVisualMedia`を使用すべきですが、`registerForActivityResult`は`Activity`で使用できないので`MediaStore.ACTION_PICK_IMAGES`を使います。  
 
 <https://qiita.com/y-mimura/items/b5b9b6f19ae283108a28>
 
