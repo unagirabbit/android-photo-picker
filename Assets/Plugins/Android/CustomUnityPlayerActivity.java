@@ -56,9 +56,16 @@ public class CustomUnityPlayerActivity extends UnityPlayerActivity {
   private static void openChooser() {
     Intent chooserIntent;
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+      // API33以上はPhotoPickerを使用
+      chooserIntent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+      chooserIntent.putExtra(
+        MediaStore.EXTRA_PICK_IMAGES_MAX,
+        CHOOSER_PICK_IMAGES_MAX
+      );
+      chooserIntent.setType("*/*");
+    } else {
       chooserIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
       chooserIntent.addCategory(Intent.CATEGORY_OPENABLE);
-      chooserIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
       // 複数選択可能
       chooserIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
       // 画像と動画を選択可能とする
@@ -67,14 +74,6 @@ public class CustomUnityPlayerActivity extends UnityPlayerActivity {
         Intent.EXTRA_MIME_TYPES,
         new String[] { "image/*", "video/*" }
       );
-    } else {
-      // API33以上はPhotoPickerを使用
-      chooserIntent = new Intent(MediaStore.ACTION_PICK_IMAGES);
-      chooserIntent.putExtra(
-        MediaStore.EXTRA_PICK_IMAGES_MAX,
-        CHOOSER_PICK_IMAGES_MAX
-      );
-      chooserIntent.setType("*/*");
     }
     try {
       UnityPlayer.currentActivity.startActivityForResult(
