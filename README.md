@@ -3,13 +3,17 @@
 [Google Play の写真と動画の権限に関するポリシーの詳細](https://support.google.com/googleplay/android-developer/answer/14115180?hl=ja)  
 
 2025年初頭から`READ_MEDIA_IMAGES`、`READ_MEDIA_VIDEO`権限はメディアを管理するようなアプリでしか使えなくなります。  
-また、Android13以降アプリ固有領域外に保存されているメディアを選択するのには、写真選択ツール（PhotoPicker）の使用が推奨されます。  
+また、Android13以降アプリ外部に保存されているメディアを選択するには、写真選択ツール（PhotoPicker）の使用が推奨されます。  
 
+UnityでAndroidのネイティブ実装を行う場合、`AndroidJavaClass`を使うかJava/Kotlinでプラグインを作成するかです。  
+[C# スクリプトから Java や Kotlin のプラグインコードを呼び出す](https://docs.unity3d.com/ja/2022.3/Manual/android-plugins-java-code-from-c-sharp.html)  
+今回は`UnityPlayerActivity`を継承したクラスで実装を行います。  
+[カスタムアクティビティの作成](https://docs.unity3d.com/ja/2022.3/Manual/android-custom-activity.html)
+  
 [写真選択ツール](https://developer.android.com/training/data-storage/shared/photopicker?hl=ja)  
-C#コードだけでAndroidのクラスを呼び出すことも可能ですが、今回は`UnityPlayerActivity`を継承したクラスで実装します。  
-`PhotoPicker`は`Jetpack Activity`の`PickVisualMedia`、`PickMultipleVisualMedia`を使用すべきですが、`registerForActivityResult`は`Activity`で使用できないので`MediaStore.ACTION_PICK_IMAGES`を使います。  
-
-<https://qiita.com/y-mimura/items/b5b9b6f19ae283108a28>
+`PhotoPicker`は`Jetpack Activity`の`PickVisualMedia`、`PickMultipleVisualMedia`を使用すべきですが、  
+`registerForActivityResult`は`Fragment`や`ComponentActivity`を継承する必要があります。  
+`UnityPlayerActivity`は`Activity`で使用できないため[MediaStore.ACTION_PICK_IMAGES](https://developer.android.com/reference/android/provider/MediaStore#ACTION_PICK_IMAGES)を使用します。  
 
 ```java
   /**
