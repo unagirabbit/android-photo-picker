@@ -13,7 +13,7 @@ UnityでAndroidのネイティブ実装を行う場合、`AndroidJavaClass`を�
   
 `PhotoPicker`は`Jetpack Activity`の`PickVisualMedia`、`PickMultipleVisualMedia`を使用すべきですが、  
 `registerForActivityResult`は`Fragment`や`ComponentActivity`を継承する必要があります。  
-`UnityPlayerActivity`は`Activity`で使用できないため[MediaStore.ACTION_PICK_IMAGES](https://developer.android.com/reference/android/provider/MediaStore#ACTION_PICK_IMAGES)を使用します。  
+`UnityPlayerActivity`は`Activity`なので[MediaStore.ACTION_PICK_IMAGES](https://developer.android.com/reference/android/provider/MediaStore#ACTION_PICK_IMAGES)を使用します。  
 
 ```java
 /**
