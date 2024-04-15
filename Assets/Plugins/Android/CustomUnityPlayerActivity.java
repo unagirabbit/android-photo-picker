@@ -36,17 +36,18 @@ public class CustomUnityPlayerActivity extends UnityPlayerActivity {
     Intent resultData
   ) {
     super.onActivityResult(requestCode, resultCode, resultData);
-    if (requestCode == MEDIA_REQUEST_CODE) {
+    if (requestCode == MEDIA_REQUEST_CODE && null != resultData) {
       if (null != resultData.getClipData()) {
         ClipData clipData = resultData.getClipData();
-        for (int i = 0; i < clipData.getItemCount(); i++) {
-          mediaCopyToTemp(clipData.getItemAt(i).getUri(), i);
+        if (null != clipData) {
+          for (int i = 0; i < clipData.getItemCount(); i++) {
+            mediaCopyToTemp(clipData.getItemAt(i).getUri(), i);
+          }
         }
       } else if (null != resultData.getData()) {
         Uri uri = resultData.getData();
         mediaCopyToTemp(uri, 0);
       }
-      UnityPlayer.UnitySendMessage("SampleScene", "OnActivityResult", "");
     }
   }
 
@@ -55,7 +56,7 @@ public class CustomUnityPlayerActivity extends UnityPlayerActivity {
    */
   private static void openChooser() {
     Intent chooserIntent;
-    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
       // API33以上はPhotoPickerを使用
       chooserIntent = new Intent(MediaStore.ACTION_PICK_IMAGES);
       chooserIntent.putExtra(
@@ -116,6 +117,7 @@ public class CustomUnityPlayerActivity extends UnityPlayerActivity {
         if (null != outputStream) {
           outputStream.close();
         }
+        UnityPlayer.UnitySendMessage("SampleScene", "OnActivityResult", fileName);
       } catch (IOException e) {
         Log.e("Unity", Objects.requireNonNull(e.getMessage()));
       }

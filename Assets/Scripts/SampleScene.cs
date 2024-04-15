@@ -40,9 +40,9 @@ public class SampleScene : MonoBehaviour
 #endif
     }
 
-    private void OnActivityResult()
+    private void OnActivityResult(string fileName)
     {
-        var filePath = $"{GetAppFilesDirectory()}/temp_000";
+        var filePath = $"{GetAppFilesDirectory()}/{fileName}";
         try
         {
             var fileBytes = File.ReadAllBytes(filePath);
