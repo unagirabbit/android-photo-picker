@@ -18,7 +18,7 @@ public class SampleScene : MonoBehaviour
         });
     }
 
-    private string GetAppFilesDirectory()
+    private string GetCacheDirectory()
     {
         var ret = string.Empty;
 #if UNITY_ANDROID && !UNITY_EDITOR
@@ -42,7 +42,7 @@ public class SampleScene : MonoBehaviour
 
     private void OnActivityResult(string fileName)
     {
-        var filePath = $"{GetAppFilesDirectory()}/{fileName}";
+        var filePath = $"{GetCacheDirectory()}/{fileName}";
         try
         {
             var fileBytes = File.ReadAllBytes(filePath);
