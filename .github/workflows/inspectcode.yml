@@ -17,10 +17,13 @@ jobs:
           unityVersion: 6000.0.38f1
           targetPlatform: Android
           buildMethod: Packages.Rider.Editor.RiderScriptEditor.SyncSolution
+      - name: List files in the repository
+        run: |
+          ls ${{ github.workspace }}
       - name: InspectCode
         uses: JetBrains/ReSharper-InspectCode@v0.8
         with:
-          solution: ./Assembly-CSharp.csproj
+          solution: ${{ github.workspace }}/Assembly-CSharp.csproj
           eXtensions: JetBrains.Unity
     permissions:
       security-events: write
