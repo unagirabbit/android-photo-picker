@@ -20,7 +20,7 @@ jobs:
       - name: InspectCode
         uses: JetBrains/ReSharper-InspectCode@v0.8
         with:
-          solution: ./workspace.sln
+          solution: ${{ github.workspace }}/workspace.sln
           eXtensions: JetBrains.Unity
           dotnetcoresdk: 8.0.13
     permissions:
