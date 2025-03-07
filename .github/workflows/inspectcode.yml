@@ -20,9 +20,7 @@ jobs:
       - name: InspectCode
         uses: JetBrains/ReSharper-InspectCode@v0.8
         with:
-          solution: ./android-photo-picker.sln
+          solution: ./Assembly-CSharp.csproj
           eXtensions: JetBrains.Unity
-          verbosity: INFO
-          debug: true
     permissions:
       security-events: write
